@@ -1,0 +1,162 @@
+<!doctype html>
+
+<head>
+  <link rel="icon" href="images/favicon.png">
+  <link rel="stylesheet" href="index.css">
+
+  <!-- HTML Meta Tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Lite Recorder</title>
+  <meta name="description" content="Record your screen right from your browser.">
+  <meta name="author" content="Omkar Phansopkar">
+
+  <!-- Google / Search Engine Tags -->
+  <meta itemprop="name" content="Lite Recorder">
+  <meta itemprop="description" content="Record your screen right from your browser.">
+  <meta itemprop="image" content="https://omkarph.github.io/LiteRecorder/images/favicon.png">
+
+  <!-- Facebook Meta Tags -->
+  <meta property="og:url" content="https://omkarph.github.io/LiteRecorder/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Lite Recorder">
+  <meta property="og:description" content="Record your screen right from your browser.">
+  <meta property="og:image" content="https://omkarph.github.io/LiteRecorder/images/favicon.png">
+
+  <!-- Twitter Meta Tags -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Lite Recorder">
+  <meta name="twitter:description" content="Record your screen right from your browser.">
+  <meta name="twitter:image" content="https://omkarph.github.io/LiteRecorder/images/favicon.png">
+
+
+  <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css"
+    integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous" />
+
+  <link rel="stylesheet" href="https://unpkg.com/tailwindcss/dist/tailwind.min.css">
+</head>
+
+<body style="background-image:url('images/bg.svg');" class="h-screen pb-20 bg-right bg-cover">
+
+  <!-- Nav -->
+  <div class="w-full container mx-auto p-3">
+    <div class="w-full flex items-center justify-between">
+      <a class="flex items-center text-indigo-500 no-underline hover:no-underline font-bold text-2xl lg:text-4xl"
+        href="#">
+        <img src="images/icon.png" width="35px">
+        &nbsp; Lite Recorder
+      </a>
+
+      <div class="flex w-1/2 justify-end content-center">
+        <a href="https://omkarph.herokuapp.com/" target="_blank"
+          class="inline-block text-blue-300 no-underline hover:text-indigo-800 hover:text-underline text-center h-10 p-2 md:h-auto md:p-4">
+          <i class="far fa-globe fa-2x"></i>
+        </a>
+        <a href="https://github.com/OmkarPh" target="_blank"
+          class="inline-block text-blue-300 no-underline hover:text-indigo-800 hover:text-underline text-center h-10 p-2 md:h-auto md:p-4">
+          <i class="fab fa-github fa-2x"></i>
+        </a>
+        <a class="inline-block text-blue-300 no-underline hover:text-indigo-800 hover:text-underline text-center h-10 p-2 md:h-auto md:p-4 "
+          href="https://www.linkedin.com/in/omkarphansopkar" target="_blank">
+          <i class="fab fa-linkedin fa-2x"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+  <!-- /Nav -->
+
+
+  <!-- Major content -->
+  <div style="display: flex;" class="hBlock">
+    <video alt="Recorded video appears here" id="recorded" autoplay controls></video>
+    <br>
+
+    <div style="display: flexbox;" class="hBlock" id="recordOptions">
+      <label class="flex items-center" style="width: max-content;">
+        <input
+          class="relative w-10 h-5 transition-all duration-200 ease-in-out bg-gray-400 rounded-full shadow-inner outline-none appearance-none"
+          type="checkbox" checked id="toggleVolume" />
+        &nbsp;&nbsp; Mic &nbsp;
+        <span id="volumeStatus">
+          <i class="fas fa-microphone-alt text-xl" style="color:blue"></i>
+        </span>
+      </label>
+      <br><br>
+
+      <button id="start" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+        Start Recording <i class="fas fa-circle fa-red" style="color: red;"></i>
+      </button>
+
+      <button id="stop" class="bg-blue-500 text-white font-bold py-2 px-4 rounded opacity-50 cursor-not-allowed">
+        Stop Recording <i class="fas fa-square fa-red" style="color: black;"></i>
+      </button>
+
+      <a id="downloadVideo" style="visibility: hidden;" href="#"
+        class="inline-block py-5 px-9 text-xl text-blue-700 hover:text-blue-900 hover:underline font-semibold">
+        DOWNLOAD recorded video
+      </a>
+    </div>
+  </div>
+  <!-- /Major content -->
+
+  <!-- Github reference for the project -->
+  <a href="https://github.com/OmkarPh/LiteRecorder" target="_blank"
+    style="float: right; padding: 0; bottom: 5rem; right: 1rem;"
+    class="inline-block text-blue-800 no-underline hover:text-indigo-500 hover:underline h-10 p-2 md:h-auto md:p-4 text-xl absolute">
+    View on Github <i class="fab fa-github "></i>
+  </a>
+
+  <!-- Note for supported devices -->
+  <div class="bg-red-100 border-t-4 border-red-500 text-red-700 px-4 py-3 fixed bottom-0" role="alert"
+    style="width: 100%">
+    <p class="font-bold">Note</p>
+    <p class="text-sm">
+      This webpage works only on PC/laptops since required Javascript APIs are not available on mobile browsers
+    </p>
+  </div>
+
+  <!-- Alert Dialog box -->
+  <div
+    class="hidden overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none justify-center items-center"
+    id="mainModal">
+    <div class="relative w-auto my-6 mx-auto max-w-3xl">
+      <div class="border-0 rounded-lg shadow-lg relative flex flex-col w-full bg-white outline-none focus:outline-none">
+        <div class="flex items-start justify-between p-5 border-b border-solid border-gray-300 rounded-t">
+          <h3 class="text-3xl font-semibold">
+            <!-- Title of dialog comes here -->
+          </h3>
+          <button
+            class="p-1 ml-auto bg-transparent border-0 text-black opacity-5 float-right text-3xl leading-none font-semibold outline-none focus:outline-none"
+            onclick="toggleModal('mainModal')">
+            <span class="bg-transparent text-black opacity-5 h-6 w-6 text-2xl block outline-none focus:outline-none">
+              x
+            </span>
+          </button>
+        </div>
+        <!--body-->
+        <div class="relative p-6 flex-auto">
+          <p class="my-4 text-gray-600 text-lg leading-relaxed">
+            <!-- Message of dialog comes here -->
+          </p>
+        </div>
+        <!--footer-->
+        <div class="flex items-center justify-end p-6 border-t border-solid border-gray-300 rounded-b">
+          <button
+            class="text-red-500 background-transparent font-bold uppercase px-6 py-2 text-sm outline-none focus:outline-none mr-1 mb-1"
+            type="button" style="transition: all .15s ease" onclick="toggleModal('mainModal')">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="hidden opacity-25 fixed inset-0 z-40 bg-black" id="mainModal-backdrop"></div>
+
+
+
+
+  <script src="index.js" defer></script>
+</body>
+
+</html>

@@ -7,9 +7,15 @@ let recorder, stream, recordedVideo;
 let isRecording = false;
 
 if(!navigator.mediaDevices){
-    showErrorOnMobileDevices();
+    showErrorMessage("https");
     thisFunctionDoesntExistHenceWillCauseErrorAndStopExecutionOfFurtherJS(":)");
 }
+
+if(navigator.mediaDevices.ondevicechange !== null){
+    showErrorMessage();
+    thisFunctionDoesntExistHenceWillCauseErrorAndStopExecutionOfFurtherJS(":)");
+}
+
 
 function getFormattedTime(downloadable = false){
     let date = new Date();
@@ -36,7 +42,9 @@ async function startRecord(audioEnabled){
 
         vid.removeAttribute("controls");
         stream = await navigator.mediaDevices.getDisplayMedia({ video:{cursor: 'always'}, audio: audioEnabled });
+        
         vid.srcObject = stream;
+        vid.muted = true;
         console.log("Started recording at ",getFormattedTime());
         recorder = new MediaRecorder(stream);
         const chunks = [];
@@ -100,26 +108,36 @@ volToggle.addEventListener("change", toggleAudio);
 
 
 
-function showErrorOnMobileDevices(){
-    document.body.innerHTML = `<div style="font-size: 80px; font-style: oblique;">
+function showErrorMessage(type){
+    
+    document.body.innerHTML = `<div style="font-size: 25px; font-style: oblique;">
                                     <center>
                                     Your device <br> is not compatible. <br><br> This works only on computers/Laptops.
                                     <br><br>
-                                    Required JS APIs for this page are not available in mobile browsers,<br><br> so try on your desktop devices :)
-                                    </center>
+                                    Required JS APIs for this page are not available in mobile browsers,<br><br> so try on your desktop devices with support for these APIs:)
+                                    </center><br>
+                                    <a href="https://github.com/OmkarPh/LiteRecorder"
+                                    class="inline-block text-blue-800 no-underline hover:text-indigo-500 hover:underline h-10 p-2 md:h-auto md:p-4 text-xl absolute">
+                                    View project on Github <i class="fab fa-github "></i>
+                                    </a>
                                 </div>`
-
+    if(type == "https"){
+        document.body.innerHTML = `<div style="font-size: 30px; font-style: oblique;">
+                                    <center>
+                                    HTTPS connection necessary for this webpage 
+                                    <br><br>
+                                    This works only on secured connections since browsers wouldn't allow insecure pages to access your screen recording
+                                    </center><br>
+                                    <a href="https://github.com/OmkarPh/LiteRecorder" 
+                                    class="inline-block text-blue-800 no-underline hover:text-indigo-500 hover:underline h-10 p-2 md:h-auto md:p-4 text-xl absolute">
+                                    View project on Github <i class="fab fa-github "></i></a>
+                                </div>`
+    }
+    
     document.body.style = "height: 100vh; max-height: 90vh; background-image:url('bg.svg');"
 
 }
 
-// Under work
-// function toggleLoader(start=false){
-//     if(start)
-//         document.getElementById("loader").classList.toggle("hidden");
-//     else
-//         document.getElementById("loader").classList.toggle("hidden");
-// }
 
 function toggleModal(modalID, title, message=""){
     let modal = temp = document.getElementById(modalID);
@@ -134,4 +152,5 @@ function toggleModal(modalID, title, message=""){
     document.getElementById(modalID + "-backdrop").classList.toggle("flex");
     return true;
 }
+
 
