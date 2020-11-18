@@ -36,9 +36,8 @@
 
   <link rel="stylesheet" href="https://unpkg.com/tailwindcss/dist/tailwind.min.css">
 </head>
-
-<body style="background-image:url('images/bg.svg');" class="h-screen pb-20 bg-right bg-cover">
-
+<body>
+ <div style="background-image:url('images/bg.svg');" class="h-screen pb-14 bg-right bg-cover">
   <!-- Nav -->
   <div class="w-full container mx-auto p-3">
     <div class="w-full flex items-center justify-between">
@@ -68,7 +67,7 @@
 
 
   <!-- Major content -->
-  <div style="display: flex;" class="hBlock">
+  <div style="display: flex;" class="hBlock" >
     <video alt="Recorded video appears here" id="recorded" autoplay controls></video>
     <br>
 
@@ -76,10 +75,19 @@
       <label class="flex items-center" style="width: max-content;">
         <input
           class="relative w-10 h-5 transition-all duration-200 ease-in-out bg-gray-400 rounded-full shadow-inner outline-none appearance-none"
-          type="checkbox" checked id="toggleVolume" />
+          type="checkbox" checked id="toggleMic" />
         &nbsp;&nbsp; Mic &nbsp;
-        <span id="volumeStatus">
+        <span id="micStatus">
           <i class="fas fa-microphone-alt text-xl" style="color:blue"></i>
+        </span>
+      </label>
+      <br><br><label class="flex items-center" style="width: max-content;">
+        <input
+          class="relative w-10 h-5 transition-all duration-200 ease-in-out bg-gray-400 rounded-full shadow-inner outline-none appearance-none"
+          type="checkbox" checked id="toggleAudio" />
+        &nbsp;&nbsp; System audio &nbsp;
+        <span id="volumeStatus">
+          <i class="fas fa-volume text-xl" style="color:blue"></i>
         </span>
       </label>
       <br><br>
@@ -154,7 +162,7 @@
   <div class="hidden opacity-25 fixed inset-0 z-40 bg-black" id="mainModal-backdrop"></div>
 
 
-
+</div>
 
   <script src="index.js" defer></script>
 </body>
