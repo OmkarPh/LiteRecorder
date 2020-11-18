@@ -1,45 +1,4 @@
 // Preliminary checks for API support
-if(!navigator.mediaDevices){
-    showErrorMessage("https");
-    thisFunctionDoesntExistHenceWillCauseErrorAndStopExecutionOfFurtherJS(":-)");
-}
-
-if(navigator.mediaDevices.ondevicechange !== null){
-    showErrorMessage();
-    thisFunctionDoesntExistHenceWillCauseErrorAndStopExecutionOfFurtherJS(":-)");
-}
-
-
-const vid = document.querySelector("#recorded");
-const start = document.querySelector('#start');
-const stop = document.querySelector('#stop');
-const micToggle = document.querySelector('#toggleMic');
-const volToggle = document.querySelector('#toggleAudio');
-
-let alertPermissionCount = 0;
-let recorder, stream, recordedVideo, micStream;
-let isRecording = false;
-
-// Utility functions
-function getFormattedTime(downloadable = false){
-    let date = new Date();
-    if(downloadable)
-        return `on ${date.getDate()}-${date.getMonth()+1}-${date.getFullYear()} at ${date.getHours()}_${date.getMinutes()}_${date.getSeconds()}`;
-    return `on ${date.getDate()}-${date.getMonth()+1}-${date.getFullYear()} at ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
-}
-function toggleModal(modalID, title, message=""){
-    let modal = temp = document.getElementById(modalID);
-
-    modal.children[0].children[0].children[0].children[0].innerHTML = title;
-    modal.children[0].children[0].children[1].children[0].innerHTML = message;
-
-    modal.classList.toggle("hidden");
-    document.getElementById(modalID + "-backdrop").classList.toggle("hidden");
-
-    modal.classList.toggle("flex");
-    document.getElementById(modalID + "-backdrop").classList.toggle("flex");
-    return true;
-}
 function showErrorMessage(type){
     
     document.body.innerHTML = `<div style="font-size: 25px; font-style: oblique;">
@@ -69,11 +28,62 @@ function showErrorMessage(type){
     document.body.style = "height: 100vh; max-height: 90vh; background-image:url('bg.svg');"
 
 }
-let dstt;
+if(!navigator.mediaDevices){
+    showErrorMessage("https");
+    thisFunctionDoesntExistHenceWillCauseErrorAndStopExecutionOfFurtherJS(":-)");
+}
+if(navigator.mediaDevices.ondevicechange !== null){
+    showErrorMessage();
+    thisFunctionDoesntExistHenceWillCauseErrorAndStopExecutionOfFurtherJS(":-)");
+}
+
+
+const vid = document.querySelector("#recorded");
+const start = document.querySelector('#start');
+const stop = document.querySelector('#stop');
+const micToggle = document.querySelector('#toggleMic');
+const volToggle = document.querySelector('#toggleAudio');
+
+let alertPermissionCount = 0;
+let recorder, stream, recordedVideo, micStream;
+
+// Utility functions
+function getFormattedTime(downloadable = false){
+    let date = new Date();
+    if(downloadable)
+        return `on ${date.getDate()}-${date.getMonth()+1}-${date.getFullYear()} at ${date.getHours()}_${date.getMinutes()}_${date.getSeconds()}`;
+    return `on ${date.getDate()}-${date.getMonth()+1}-${date.getFullYear()} at ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
+}
+function toggleModal(modalID, title, message=""){
+    let modal = temp = document.getElementById(modalID);
+
+    modal.children[0].children[0].children[0].children[0].innerHTML = title;
+    modal.children[0].children[0].children[1].children[0].innerHTML = message;
+
+    modal.classList.toggle("hidden");
+    document.getElementById(modalID + "-backdrop").classList.toggle("hidden");
+
+    modal.classList.toggle("flex");
+    document.getElementById(modalID + "-backdrop").classList.toggle("flex");
+    return true;
+}
+function toggleMic(){
+    let isEnabled = micToggle.checked;
+    if(isEnabled)
+        document.getElementById("micStatus").innerHTML = '<i class="fas fa-microphone-alt text-xl" style="color:blue;"></i>';
+    else
+        document.getElementById("micStatus").innerHTML = '<i class="fas fa-microphone-alt-slash text-xl" style="color: black;"></i>';
+}
+function toggleVolume(){
+    let isEnabled = volToggle.checked;
+    if(isEnabled)
+        document.getElementById("volumeStatus").innerHTML = '<i class="fas fa-volume text-xl" style="color:blue;"></i>';
+    else
+        document.getElementById("volumeStatus").innerHTML = '<i class="fas fa-volume-mute text-xl" style="color: black;"></i>';
+}
 
 const mergeAudioStreams = (desktopStream, voiceStream) => {
     const context = new AudioContext();
-    dstt = desktopStream;
     if(desktopStream.getAudioTracks().length == 0){
         // User didn't share desktop audio so, output is directly returned as voicStream i.e. mic audio
         return voiceStream.getAudioTracks();
@@ -101,31 +111,14 @@ const mergeAudioStreams = (desktopStream, voiceStream) => {
     return destination.stream.getAudioTracks();
   };
 
-
-
-
-
-
-
-
-function preStopRecord(){
-    console.log("Stopped recording at ",getFormattedTime());
-    
-    stop.setAttribute("disabled", true);
-    start.removeAttribute("disabled");
-    
-    
-    start.setAttribute("class", "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded");
-    stop.setAttribute("class","bg-blue-500 text-white font-bold py-2 px-4 rounded opacity-50 cursor-not-allowed");
-    vid.setAttribute("controls","");
-}
-async function startRecord(audioEnabled, micEnabled){
+async function startRecord(audioEnabled, micEnabled, videoObj, linkObj, preStopCallback){
     try{
         start.setAttribute("class","bg-blue-500 text-white font-bold py-2 px-4 rounded opacity-50 cursor-not-allowed");
         stop.setAttribute("class", "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded");
-
-        vid.removeAttribute("controls");
+        if(videoObj)    
+            videoObj.removeAttribute("controls");
         stream = await navigator.mediaDevices.getDisplayMedia({ video:{cursor: 'always'}, audio: audioEnabled });
+        
         if(micEnabled){
             micStream = null;
             micStream = await navigator.mediaDevices.getUserMedia({video: false, audio: true});
@@ -135,26 +128,37 @@ async function startRecord(audioEnabled, micEnabled){
             ];              
             stream = new MediaStream(tracks);
         }
-        vid.srcObject = stream;
-        vid.muted = true;
+        if(videoObj){
+            videoObj.srcObject = stream;
+            videoObj.muted = true;
+        }
         console.log("Started recording at ",getFormattedTime());
         recorder = new MediaRecorder(stream, {mimeType: 'video/webm; codecs=vp8,opus'});
         const chunks = [];
         recorder.ondataavailable = e => chunks.push(e.data);
+        stream.getTracks().forEach((track) =>
+            track.addEventListener("ended", () => {
+                stream.getAudioTracks().forEach((audio) => audio.stop());
+                if (recorder) recorder.stop();
+                recorder = null;
+            })
+        ); 
         recorder.onstop = e => {
-            preStopRecord();
-            const completeBlob = new Blob(chunks, { type: 'video/webm' });
-            vid.srcObject = null;
-            vid.src = URL.createObjectURL(completeBlob);
-            vid.muted = false;
-            let a = document.getElementById('downloadVideo');
-            a.style.visibility = "visible";
-            a.href        = vid.getAttribute("src");
-            a.download    = `Recorded_Video_${getFormattedTime(true)}.mp4`;
+            preStopCallback();
+            const completeBlob = new Blob(chunks, { type: 'video/mp4' });
+            let sourceURL = URL.createObjectURL(completeBlob);
+            if(videoObj){
+                videoObj.srcObject = null;
+                videoObj.src = sourceURL;
+                videoObj.muted = false;
+            }
+            linkObj.style.visibility = "visible";
+            linkObj.href        = sourceURL;
+            linkObj.download    = `Recorded_Video_${getFormattedTime(true)}.mp4`;
         };
         recorder.start();
     }catch(err){
-        preStopRecord();
+        preStopCallback();
         if(err.name == "NotAllowedError"){
             if(alertPermissionCount == 0){
                 toggleModal("mainModal",
@@ -178,35 +182,36 @@ async function startRecord(audioEnabled, micEnabled){
     }
 }
 
+function preStopRecord(){
+    console.log("Stopped recording at ",getFormattedTime());
+    
+    stop.setAttribute("disabled", true);
+    start.removeAttribute("disabled");
+    
+    start.setAttribute("class", "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded");
+    stop.setAttribute("class","bg-blue-500 text-white font-bold py-2 px-4 rounded opacity-50 cursor-not-allowed");
+    vid.setAttribute("controls","");
+}
+
 start.addEventListener("click", function(event){
     start.setAttribute("disabled", true);
     stop.removeAttribute("disabled");
-    isRecording = true;
-    startRecord(document.getElementById("toggleAudio").checked, document.getElementById("toggleMic").checked);
+    startRecord(
+        document.getElementById("toggleAudio").checked,
+        document.getElementById("toggleMic").checked, 
+        vid, 
+        document.getElementById('downloadVideo'),
+        preStopRecord
+    );
 });
+
 stop.addEventListener("click", function(event){
     stop.setAttribute("disabled", true);
     start.removeAttribute("disabled");
-    isRecording = false;
     recorder.stop();
     stream.getVideoTracks()[0].stop();
 });
-function toggleMic(){
-    let isEnabled = micToggle.checked;
-    if(isEnabled)
-        document.getElementById("micStatus").innerHTML = '<i class="fas fa-microphone-alt text-xl" style="color:blue;"></i>';
-    else
-        document.getElementById("micStatus").innerHTML = '<i class="fas fa-microphone-alt-slash text-xl" style="color: black;"></i>';
-}
-function toggleVolume(){
-    let isEnabled = volToggle.checked;
-    if(isEnabled)
-        document.getElementById("volumeStatus").innerHTML = '<i class="fas fa-volume text-xl" style="color:blue;"></i>';
-    else
-        document.getElementById("volumeStatus").innerHTML = '<i class="fas fa-volume-mute text-xl" style="color: black;"></i>';
-}
+
 micToggle.addEventListener("change", toggleMic);
 volToggle.addEventListener("change", toggleVolume);
-
-
 
