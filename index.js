@@ -25,7 +25,7 @@ function showErrorMessage(type){
                                 </div>`
     }
     
-    document.body.style = "height: 100vh; max-height: 90vh; background-image:url('bg.svg');"
+    document.body.style = "height: 100vh; max-height: 90vh; background-image:url('images/bg.svg');"
 
 }
 if(!navigator.mediaDevices){
