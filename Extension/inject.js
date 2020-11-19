@@ -19,10 +19,6 @@ if(navigator.mediaDevices.ondevicechange !== null){
 }
 
 
-const start = document.querySelector('#start');
-const stop = document.querySelector('#stop');
-const micToggle = document.querySelector('#toggleMic');
-const volToggle = document.querySelector('#toggleAudio');
 
 let alertPermissionCount = 0;
 let recorder, stream, recordedVideo, micStream;
@@ -148,30 +144,20 @@ async function startRecord(audioEnabled, micEnabled, preStopCallback){
 
 function preStopRecord(){
     
-    stop.setAttribute("disabled", true);
-    start.removeAttribute("disabled");
+    // stop.setAttribute("disabled", true);
+    // start.removeAttribute("disabled");
     
-    start.setAttribute("class", "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded");
-    stop.setAttribute("class","bg-blue-500 text-white font-bold py-2 px-4 rounded opacity-50 cursor-not-allowed");
+    // start.setAttribute("class", "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded");
+    // stop.setAttribute("class","bg-blue-500 text-white font-bold py-2 px-4 rounded opacity-50 cursor-not-allowed");
 }
 
-start.addEventListener("click", function(event){
-    start.setAttribute("disabled", true);
-    stop.removeAttribute("disabled");
-    startRecord(
-        document.getElementById("toggleAudio").checked,
-        document.getElementById("toggleMic").checked, 
-        preStopRecord
-    );
-});
 
-stop.addEventListener("click", function(event){
-    stop.setAttribute("disabled", true);
-    start.removeAttribute("disabled");
-    recorder.stop();
-    stream.getVideoTracks()[0].stop();
-});
+    // startRecord(
+    //     document.getElementById("toggleAudio").checked,
+    //     document.getElementById("toggleMic").checked, 
+    //     preStopRecord
+    // );
 
-micToggle.addEventListener("change", toggleMic);
-volToggle.addEventListener("change", toggleVolume);
+    // recorder.stop();
+    // stream.getVideoTracks()[0].stop();
 
