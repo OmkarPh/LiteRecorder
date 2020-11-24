@@ -38,11 +38,12 @@ if(navigator.mediaDevices.ondevicechange !== null){
 }
 
 
-const vid = document.querySelector("#recorded");
-const start = document.querySelector('#start');
-const stop = document.querySelector('#stop');
-const micToggle = document.querySelector('#toggleMic');
-const volToggle = document.querySelector('#toggleAudio');
+const vid = $("#recorded")[0];
+const start = $('#start')[0];
+const stop = $('#stop')[0];
+const micToggle = $('#toggleMic')[0];
+const volToggle = $('#toggleAudio')[0];
+
 
 let alertPermissionCount = 0;
 let recorder, stream, recordedVideo, micStream;
@@ -55,31 +56,31 @@ function getFormattedTime(downloadable = false){
     return `on ${date.getDate()}-${date.getMonth()+1}-${date.getFullYear()} at ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
 }
 function toggleModal(modalID, title, message=""){
-    let modal = temp = document.getElementById(modalID);
+    let modal = temp = $("#"+modalID)[0];
 
     modal.children[0].children[0].children[0].children[0].innerHTML = title;
     modal.children[0].children[0].children[1].children[0].innerHTML = message;
 
     modal.classList.toggle("hidden");
-    document.getElementById(modalID + "-backdrop").classList.toggle("hidden");
+    $("#"+modalID + "-backdrop")[0].classList.toggle("hidden");
 
     modal.classList.toggle("flex");
-    document.getElementById(modalID + "-backdrop").classList.toggle("flex");
+    $("#"+modalID + "-backdrop")[0].classList.toggle("flex");
     return true;
 }
 function toggleMic(){
     let isEnabled = micToggle.checked;
     if(isEnabled)
-        document.getElementById("micStatus").innerHTML = '<i class="fas fa-microphone-alt text-xl" style="color:blue;"></i>';
+        $("#micStatus")[0].innerHTML = '<i class="fas fa-microphone-alt text-xl" style="color:blue;"></i>';
     else
-        document.getElementById("micStatus").innerHTML = '<i class="fas fa-microphone-alt-slash text-xl" style="color: black;"></i>';
+        $("#micStatus")[0].innerHTML = '<i class="fas fa-microphone-alt-slash text-xl" style="color: black;"></i>';
 }
 function toggleVolume(){
     let isEnabled = volToggle.checked;
     if(isEnabled)
-        document.getElementById("volumeStatus").innerHTML = '<i class="fas fa-volume text-xl" style="color:blue;"></i>';
+        $("#volumeStatus")[0].innerHTML = '<i class="fas fa-volume text-xl" style="color:blue;"></i>';
     else
-        document.getElementById("volumeStatus").innerHTML = '<i class="fas fa-volume-mute text-xl" style="color: black;"></i>';
+        $("#volumeStatus")[0].innerHTML = '<i class="fas fa-volume-mute text-xl" style="color: black;"></i>';
 }
 
 const mergeAudioStreams = (desktopStream, voiceStream) => {
@@ -115,8 +116,7 @@ async function startRecord(audioEnabled, micEnabled, videoObj, linkObj, preStopC
     try{
         start.setAttribute("class","bg-blue-500 text-white font-bold py-2 px-4 rounded opacity-50 cursor-not-allowed");
         stop.setAttribute("class", "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded");
-        if(videoObj)    
-            videoObj.removeAttribute("controls");
+        videoObj.removeAttribute("controls");
         stream = await navigator.mediaDevices.getDisplayMedia({ video:{cursor: 'always'}, audio: audioEnabled });
         
         if(micEnabled){
@@ -128,10 +128,10 @@ async function startRecord(audioEnabled, micEnabled, videoObj, linkObj, preStopC
             ];              
             stream = new MediaStream(tracks);
         }
-        if(videoObj){
-            videoObj.srcObject = stream;
-            videoObj.muted = true;
-        }
+        
+        videoObj.srcObject = stream;
+        videoObj.muted = true;
+        
         console.log("Started recording at ",getFormattedTime());
         recorder = new MediaRecorder(stream, {mimeType: 'video/webm; codecs=vp8,opus'});
         const chunks = [];
@@ -145,13 +145,35 @@ async function startRecord(audioEnabled, micEnabled, videoObj, linkObj, preStopC
         ); 
         recorder.onstop = e => {
             preStopCallback();
-            const completeBlob = new Blob(chunks, { type: 'video/mp4' });
+            const completeBlob = new Blob(chunks, { type: 'video/webm' });
             let sourceURL = URL.createObjectURL(completeBlob);
-            if(videoObj){
-                videoObj.srcObject = null;
-                videoObj.src = sourceURL;
-                videoObj.muted = false;
+
+            videoObj.srcObject = null;
+            videoObj.src = sourceURL;
+            videoObj.muted = false;
+
+            videoObj.onloadedmetadata = function() {
+                // console.log('Default duration: ' + videoObj.duration);
+
+                // handle chrome's bug 
+                if (videoObj.duration === Infinity) {
+                  // set it to bigger than the actual duration
+                  videoObj.currentTime = 1e101;
+
+                  videoObj.ontimeupdate = function() {
+                    // Set an empty function to prevent recursion here ;)
+                    this.ontimeupdate = () => {
+                      return;
+                    }
+
+                    // console.log('After workaround: ' + videoObj.duration);
+                    videoObj.currentTime = 0;
+                    videoObj.play();
+                  }
+                }
             }
+            videoObj.setAttribute("controls","");
+            
             linkObj.style.visibility = "visible";
             linkObj.href        = sourceURL;
             linkObj.download    = `Recorded_Video_${getFormattedTime(true)}.mp4`;
@@ -190,17 +212,16 @@ function preStopRecord(){
     
     start.setAttribute("class", "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded");
     stop.setAttribute("class","bg-blue-500 text-white font-bold py-2 px-4 rounded opacity-50 cursor-not-allowed");
-    vid.setAttribute("controls","");
 }
 
 start.addEventListener("click", function(event){
     start.setAttribute("disabled", true);
     stop.removeAttribute("disabled");
     startRecord(
-        document.getElementById("toggleAudio").checked,
-        document.getElementById("toggleMic").checked, 
+        $("#toggleAudio")[0].checked,
+        $("#toggleMic")[0].checked, 
         vid, 
-        document.getElementById('downloadVideo'),
+        $("#downloadVideo")[0],
         preStopRecord
     );
 });
